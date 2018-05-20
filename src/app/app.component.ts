@@ -1,12 +1,38 @@
-import { Component, OnInit } from '@angular/core';
-  @Component({
+import { Component, OnInit, ViewChild } from '@angular/core';
+import {WebcamImage} from 'ngx-webcam';
+import {Subject} from 'rxjs/Subject';
+import {Observable} from 'rxjs/Observable';
+import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+@Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent  implements OnInit {
-  title = 'app';
+export class AppComponent{
+  constructor(
+    private _router: Router,
+    private http: HttpClient
+  ) {};
 
-  ngOnInit() {
+
+  title = 'app';
+  isOpen: boolean = false;
+  stream;
+
+  
+
+  login() {
+    this._router.navigate(['login']);
+  }
+
+  signup() {
+    this._router.navigate(['signup']);
+  }
+
+  logout() {
+    sessionStorage.clear();
+    localStorage.clear();
+    this._router.navigate(['login']);
   }
 }

@@ -1,6 +1,8 @@
 <div class="container">
   <div class="alert alert-warning alert-dismissible" role="alert" *ngIf="message !== ''">
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
     {{message}}
   </div>
   <h2 class="form-signin-heading">Sign Up Now</h2>
@@ -8,5 +10,17 @@
   <input type="email" class="form-control" placeholder="Email address" [(ngModel)]="signupData.username" name="username" required/>
   <label for="inputPassword" class="sr-only">Password</label>
   <input type="password" class="form-control" placeholder="Password" [(ngModel)]="signupData.password" name="password" required/>
+  <div style="text-align:center">
+    <div>
+      <webcam [trigger]="triggerObservable" (imageCapture)="handleImage($event)" *ngIf="showWebcam"></webcam>
+      <br/>
+      <button class="actionBtn" (click)="triggerSnapshot();">Take A Snapshot</button>
+      <button class="actionBtn" (click)="toggleWebcam();">Toggle Webcam</button>
+    </div>
+    <div class="snapshot" *ngIf="webcamImage">
+      <h2>Nice one!</h2>
+      <img [src]="webcamImage.imageAsDataUrl"/>
+    </div>
+  </div>
   <button class="btn btn-lg btn-primary btn-block" type="submit" (click)="signup()">Sign Up</button>
 </div>

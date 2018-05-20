@@ -6,6 +6,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { AuthGuard } from './shared/authguard';
 
 const appRoutes: Routes = [
     {
@@ -21,7 +22,7 @@ const appRoutes: Routes = [
     {
         path: 'dashboard',
         component: DashboardComponent,
-        data: { title: 'Dashboard' }
+        data: { title: 'Dashboard' },
     },
     { path: '', redirectTo: '', pathMatch: 'full' },
 ];

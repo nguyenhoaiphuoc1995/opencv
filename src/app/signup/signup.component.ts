@@ -4,6 +4,8 @@ import { Router } from "@angular/router";
 import { Observable } from 'rxjs/Observable';
 import { tap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs/observable/of';
+import { WebcamImage } from 'ngx-webcam';
+import { Subject } from 'rxjs/Subject';
 @Component({
   selector: 'app-signup',
   templateUrl: './signup.component.html',
@@ -14,17 +16,49 @@ export class SignupComponent implements OnInit {
   constructor(
     private http: HttpClient, private router: Router
   ) { }
-  signupData = { username:'', password:'' };
+  signupData = { username: '', password: '' };
   message = '';
+  showWebcam = false;
   ngOnInit() {
   }
 
   signup() {
-    this.http.post('/api/signup',this.signupData).subscribe(resp => {
+    this.http.post('/api/signup', this.signupData).subscribe(resp => {
       this.router.navigate(['login']);
     }, err => {
       this.message = err.error.msg;
     });
+  }
+
+  public webcamImage: WebcamImage = null;
+
+  private trigger: Subject<void> = new Subject<void>();
+
+
+  public triggerSnapshot(): void {
+    this.trigger.next();
+  }
+
+  toggleWebcam(): void {
+    this.showWebcam = !this.showWebcam;
+  }
+
+  handleImage(webcamImage: WebcamImage): void {
+    console.info('received webcam image', webcamImage);
+    this.webcamImage = webcamImage;
+    let dataObj = {
+      img: this.webcamImage,
+      isRegconitionImg: true,
+      username: this.signupData.username
+    };
+    this.http.post('/api/img/store', dataObj)
+      .subscribe((res) => {
+        console.log(res);
+      });
+  }
+
+  public get triggerObservable(): Observable<void> {
+    return this.trigger.asObservable();
   }
 
 }

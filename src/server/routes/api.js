@@ -11,10 +11,13 @@ var User = require("../models/user");
 const path = require("path");
 const cv = require("opencv4nodejs");
 const fs = require("fs");
+var formidable = require('formidable');
+var mkdirp = require("mkdirp");
+
 router.get('/', (req, res, next) => {
   res.send('Express RESTful API');
 
-})  
+})
 
 router.post('/signup', function (req, res) {
   console.log(req.body)
@@ -59,23 +62,112 @@ router.post('/signin', function (req, res) {
   });
 });
 
-router.post("/cv", (req, res) => {
+router.post('/img/store', (req, res) => {
+  let img = req.body.img._imageAsDataUrl;
+  let username = req.body.username;
+  let fileName = req.body.isRegconitionImg ? (username + "4") : username;
+  // let fileDir = "../tscode/src/assets/images/" + username;
+  let filePath = "../tscode/src/assets/images/face-recognition/imgs/" + fileName + ".jpeg";
+  let data = img.replace(/^data:image\/\w+;base64,/, '');
 
+  console.log(req.body.isRegconitionImg)
+  // mkdirp(fileDir, (error) => {
+  //   console.log(error)
+  //   fs.writeFile(filePath, data, { encoding: 'base64' }, (err) => {
+  //     return res.json({
+  //       result: 'OK',
+  //       error: err
+  //     });
+  //   })
+  // });
+
+  fs.writeFile(filePath, data, { encoding: 'base64' }, (err) => {
+    let isIdentified = false;
+    const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
+    const getFaceImage = (grayImg) => {
+      const faceRects = classifier.detectMultiScale(grayImg).objects;
+      // console.log(faceRects)
+      // if (!faceRects.length) {
+      //   throw new Error('failed to detect faces');
+      // }
+      return grayImg;
+    };
+
+    const basePath = "../tscode/src/assets/images/face-recognition";
+    const imgsPath = path.resolve(basePath, 'imgs');
+    // const nameMappings = ['daryl', 'rick', 'negan'];
+    const nameMappings = [`${username}`];
+    const imgFiles = fs.readdirSync(imgsPath);
+    console.log(`${username}`),
+    console.log(`${username}4`)
+
+    const images = imgFiles
+      // get absolute file path
+      .map(file => path.resolve(imgsPath, file))
+      // read image
+      .map(filePath => cv.imread(filePath))
+      // face recognizer works with gray scale images
+      .map(img => img.bgrToGray())
+      // detect and extract face
+      .map(getFaceImage)
+      // face images must be equally sized
+      .map(faceImg => faceImg.resize(80, 80));
+
+    const isImageFour = (_, i) => imgFiles[i].includes(`${username}4`);
+    const isNotImageFour = (_, i) => !isImageFour(_, i);
+    // use images 1 - 3 for training
+    const trainImages = images.filter(isNotImageFour);
+    // use images 4 for testing
+    const testImages = images.filter(isImageFour);
+    // make labels
+    const labels = imgFiles
+      .filter(isNotImageFour)
+      .map(file => nameMappings.findIndex(name => file.includes(name)));
+
+
+    const lbph = new cv.LBPHFaceRecognizer();
+    lbph.train(trainImages, labels);
+
+    const runPrediction = (recognizer, cb) => {
+      testImages.forEach((img) => {
+        const result = recognizer.predict(img);
+        console.log('predicted: %s, confidence: %s', nameMappings[result.label], result.confidence);
+        if (nameMappings[result.label] === `${username}` && result.confidence >= 63) {
+          isIdentified = true;
+        }
+        cv.destroyAllWindows();
+
+      });
+      cb();
+    };
+
+    runPrediction(lbph, () => {
+      return res.json({
+        isUser: isIdentified
+      });
+    });
+  })
+
+})
+
+router.post("/cv", (req, res) => {
+  let isIdentified = false;
   const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
   const getFaceImage = (grayImg) => {
     const faceRects = classifier.detectMultiScale(grayImg).objects;
-    if (!faceRects.length) {
-      throw new Error('failed to detect faces');
-    }
-    return grayImg.getRegion(faceRects[0]);
+    // console.log(faceRects)
+    // if (!faceRects.length) {
+    //   throw new Error('failed to detect faces');
+    // }
+    return grayImg;
   };
-  
-  const basePath = '../data/face-recognition';
+
+  const basePath = "../tscode/src/assets/images/face-recognition";
   const imgsPath = path.resolve(basePath, 'imgs');
-  const nameMappings = ['daryl', 'rick', 'negan'];
-  
+  // const nameMappings = ['daryl', 'rick', 'negan'];
+  const nameMappings = ['phuoc'];
   const imgFiles = fs.readdirSync(imgsPath);
-  
+
   const images = imgFiles
     // get absolute file path
     .map(file => path.resolve(imgsPath, file))
@@ -87,7 +179,7 @@ router.post("/cv", (req, res) => {
     .map(getFaceImage)
     // face images must be equally sized
     .map(faceImg => faceImg.resize(80, 80));
-  
+
   const isImageFour = (_, i) => imgFiles[i].includes('4');
   const isNotImageFour = (_, i) => !isImageFour(_, i);
   // use images 1 - 3 for training
@@ -98,34 +190,29 @@ router.post("/cv", (req, res) => {
   const labels = imgFiles
     .filter(isNotImageFour)
     .map(file => nameMappings.findIndex(name => file.includes(name)));
-  
-    
-  const eigen = new cv.EigenFaceRecognizer();
-  const fisher = new cv.FisherFaceRecognizer();
-  const lbph = new cv.LBPHFaceRecognizer();
-  eigen.train(trainImages, labels);
-  fisher.train(trainImages, labels);
-  lbph.train(trainImages, labels);
-  
-  const runPrediction = (recognizer) => {
-      testImages.forEach((img) => {
-        const result = recognizer.predict(img);
-        console.log('predicted: %s, confidence: %s', nameMappings[result.label], result.confidence);
-        cv.imshowWait('face', img);
-        cv.destroyAllWindows();
-      });
-    };
-    
-    console.log('eigen:');
-    runPrediction(eigen);
-    
-    console.log('fisher:');
-    runPrediction(fisher);
-    
-    console.log('lbph:');
-    runPrediction(lbph);
 
-    
+
+  const lbph = new cv.LBPHFaceRecognizer();
+  lbph.train(trainImages, labels);
+
+  const runPrediction = (recognizer, cb) => {
+    testImages.forEach((img) => {
+      const result = recognizer.predict(img);
+      console.log('predicted: %s, confidence: %s', nameMappings[result.label], result.confidence);
+      if (nameMappings[result.label] === 'phuoc' && result.confidence >= 63) {
+        isIdentified = true;
+      }
+      cv.destroyAllWindows();
+
+    });
+    cb();
+  };
+
+  runPrediction(lbph, () => {
+    return res.json({
+      isUser: isIdentified
+    });
+  });
 });
 
 getToken = function (headers) {

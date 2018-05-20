@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { BrowserModule } from '@angular/platform-browser';
+import { WebcamModule } from 'ngx-webcam';
 
 @NgModule({
   declarations: [
@@ -13,7 +14,8 @@ import { BrowserModule } from '@angular/platform-browser';
     BrowserModule,
     FormsModule,
     CommonModule,
-    RouterModule
+    RouterModule,
+    WebcamModule
   ],
   providers: [],
   bootstrap: [LoginComponent]

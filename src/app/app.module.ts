@@ -10,11 +10,10 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { CommonModule } from '@angular/common';  
 import { RouterModule } from '@angular/router';
 import { AppRoutingModule } from './app.routes';
-
-
+import {WebcamModule} from 'ngx-webcam';
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
   ],
   imports: [
     BrowserModule,
@@ -24,7 +23,8 @@ import { AppRoutingModule } from './app.routes';
     DashboardModule,
     CommonModule,
     FormsModule,
-    AppRoutingModule
+    AppRoutingModule,
+    WebcamModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -4,9 +4,9 @@
   "license": "MIT",
   "scripts": {
     "ng": "ng",
-    "test": "ng serve --proxy-config proxy.config.json --open",
+    "start": "ng serve --proxy-config proxy.config.json --open",
     "build": "ng build --prod",
-    "start": "ng build && node ./src/bin/www",
+    "test": "ng build && node ./src/bin/www",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
@@ -27,8 +27,12 @@
     "core-js": "^2.4.1",
     "express": "^4.16.3",
     "jsonwebtoken": "^8.2.1",
+    "mkdirp": "^0.5.1",
     "mongoose": "^5.0.15",
     "morgan": "^1.9.0",
+    "multer": "^1.3.0",
+    "ngx-cookie-service": "^1.0.10",
+    "ngx-webcam": "^0.1.4",
     "opencv4nodejs": "^4.2.1",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
@@ -55,5 +59,6 @@
     "ts-node": "~4.1.0",
     "tslint": "~5.9.1",
     "typescript": "~2.5.3"
-  }
+  },
+  "vendor": []
 }
