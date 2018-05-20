@@ -10,7 +10,7 @@
   <input type="password" class="form-control"  placeholder="Password" [(ngModel)]="loginData.password" name="password" required/>
   <div style="text-align:center">
     <div>
-      <webcam [trigger]="triggerObservable" (imageCapture)="handleImage($event)" *ngIf="showWebcam"></webcam>
+      <webcam [trigger]="triggerObservable" (imageCapture)="handleImage($event, 0)" *ngIf="showWebcam"></webcam>
       <br/>
       <button class="actionBtn" (click)="triggerSnapshot();">Take A Snapshot</button>
       <button class="actionBtn" (click)="toggleWebcam();">Toggle Webcam</button>
