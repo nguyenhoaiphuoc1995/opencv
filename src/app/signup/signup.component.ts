@@ -29,6 +29,11 @@ export class SignupComponent implements OnInit {
   }
 
   signup() {
+    if (!this.webcamImage) {
+      this.message = "Please take your picture";
+      return;
+    }
+    
     this.http.post('/api/signup', this.signupData).subscribe(resp => {
       this.router.navigate(['login']);
     }, err => {

@@ -29,10 +29,4 @@ export class AppComponent{
   signup() {
     this._router.navigate(['signup']);
   }
-
-  logout() {
-    sessionStorage.clear();
-    localStorage.clear();
-    this._router.navigate(['login']);
-  }
 }

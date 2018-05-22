@@ -24,8 +24,9 @@ export class LoginComponent implements OnInit {
   message = '';
   data;
   showWebcam;
+  isLogin;
   ngOnInit() {
-
+    this.isLogin = false;
   }
 
   public webcamImage: WebcamImage = null;
@@ -68,13 +69,17 @@ export class LoginComponent implements OnInit {
   }
 
   login() {
+    if(!this.webcamImage) {
+      this.message = "Please take your picture";
+      return;
+    }
+    this.isLogin = true;
     this.loginData['img'] = this.webcamImage;
     this.loginData['isRegconitionImg'] = false;
     this.loginData['isUserLogin'] = true;
     let observable = this.http.post('/api/signin', this.loginData).subscribe(resp => {
       window.addEventListener("beforeunload", function (e) {
         var confirmationMessage = "\o/";
-        console.log("cond");
         e.returnValue = confirmationMessage;     // Gecko, Trident, Chrome 34+
         return confirmationMessage;              // Gecko, WebKit, Chrome <34
       });
@@ -97,9 +102,5 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  logout() {
-    sessionStorage.clear();
-    localStorage.clear();
-    this.router.navigate(['login']);
-  }
+
 }
