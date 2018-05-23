@@ -122,7 +122,7 @@ router.post('/signin', function (req, res) {
               testImages.forEach((img) => {
                 const result = recognizer.predict(img);
                 console.log('predicted: %s, confidence: %s', nameMappings[result.label], result.confidence);
-                if (nameMappings[result.label] === `${username}` && result.confidence >= 63) {
+                if (nameMappings[result.label] === `${username}` && result.confidence >= 50 && result.confidence < 100) {
                   isIdentified = true;
                 }
                 cv.destroyAllWindows();
